@@ -10,7 +10,7 @@ Here is what I suggest:
 * You will have to have an AWS account with your email verified through AWS SES (free)
 * You will have to have installed the AWS CLI and configured Boto3 (free)
 
-In the dad-bod-text.py file you will see a number of PIP dependencies:
+In the dad_bod_text.py file you will see a number of PIP dependencies:
 * bs4
 * pandas
 * numpy
