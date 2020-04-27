@@ -1,36 +1,34 @@
 import requests
 import urllib.request
 import time
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from pyvirtualdisplay import Display
 import datetime
 from datetime import date
 import pandas as pd
 import pandas as pd2
 from datetime import datetime
 
-# headless
-display = Display(visible=0,size=(800, 600))
-display.start()
+# you will need to update the TrendWeight URL with your own.
+url = "https://trendweight.com/u/91a151bdce4143/data/"
 
-browser = webdriver.Chrome()
+header = {
+  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
+  "X-Requested-With": "XMLHttpRequest"
+}
 
-# you need to update this with your own trendweight URL - this is mine
-browser.get("https://trendweight.com/u/91a151bdce4143/")
-#take a breathe allowing JavaScript to load
-time.sleep(2)
-soup = BeautifulSoup(browser.page_source, "html.parser")
+r = requests.get(url, headers=header)
 
-todays_weight = soup.findAll('td', attrs={'class':'measuredWeight'})[0].string
-weight_today = float(todays_weight)
+dfs = pd.read_json(r.text)
+mydict = dfs["Measurements"].to_dict()
+length = len(mydict)
+
+weight_today = float(mydict[length-1]["WeightActual"])
 
 todayz_date = str(date.today())
 
 #open master spreadsheet and append today's weight to the bottom.
 #I included a sample of my weight chart to get you started
 df = pd.read_excel("weight_chart.xlsx")
-df2 = pd.DataFrame({"weigh_in_date":[todayz_date], "weight":[weight_today]}) 
+df2 = pd.DataFrame({"weigh_in_date":[todayz_date], "weight":[weight_today]})
 df = df.append(df2)
 
 #more cleanup to remove dups
@@ -45,25 +43,21 @@ df3['Percentile_rank']=df3.weight.rank(pct=True)
 #establish the index for our new weight
 #x = 2
 x = (len(df3))-1
-#print("value of x is: ")
-#print(int(x))
-#print(df.weight[x])
-#print(df.Percentile_rank[int(x)])
-
 
 import boto3
 from botocore.exceptions import ClientError
 
 # Replace sender@example.com with your "From" address.
 # This address must be verified with Amazon SES.
-SENDER = "My Future Self <kylepott@gmail.com>"
+SENDER = "My Future Self <sender@example.com>"
 
-# Replace recipient@example.com with a "To" address. If your account 
+# Replace recipient@example.com with a "To" address. If your account
 # is still in the sandbox, this address must be verified.
-RECIPIENT = "kylepott@gmail.com"
+# recommend moving out of the sandox and using your SMS gateway
+RECIPIENT = "##########@text.republicwireless.com"
 
 # Specify a configuration set. If you do not want to use a configuration
-# set, comment the following variable, and the 
+# set, comment the following variable, and the
 # ConfigurationSetName=CONFIGURATION_SET argument below.
 #CONFIGURATION_SET = "ConfigSet"
 
@@ -86,7 +80,7 @@ if weight_up_or_down < 0:
 else:
     enouragement = " Get back at it, you can do it! Your weight was not less than yesterday. You went up " + str(round((weight_up_or_down),2)) + " pounds."
 
-BODY_HTML = "<html><head></head><body><p>Today you weigh " + str(round((df3.weight[int(x)]),2)) + " which is in the " + str(round((df3.Percentile_rank[int(x)]),2)) + " percentile." + enouragement + " Keep going! Only " + str(round((how_much_to_go),2)) + " pounds left to go to your goal!</p></body></html>"
+BODY_TEXT = "Today you weigh " + str(round((df3.weight[int(x)]),2)) + " which is in the " + str(round((df3.Percentile_rank[int(x)]),2)) + " percentile." + enouragement + " Keep going! Only " + str(round((how_much_to_go),2)) + " pounds left to go to your goal!"
 
 # The character encoding for the email.
 CHARSET = "UTF-8"
@@ -130,4 +124,3 @@ except ClientError as e:
 else:
     print("Email sent! Message ID:"),
     print(response['MessageId'])
-
