@@ -80,6 +80,7 @@ if weight_up_or_down < 0:
 else:
     enouragement = " Get back at it, you can do it! Your weight was not less than yesterday. You went up " + str(round((weight_up_or_down),2)) + " pounds."
 
+BODY_HTML = ""
 BODY_TEXT = "Today you weigh " + str(round((df3.weight[int(x)]),2)) + " which is in the " + str(round((df3.Percentile_rank[int(x)]),2)) + " percentile." + enouragement + " Keep going! Only " + str(round((how_much_to_go),2)) + " pounds left to go to your goal!"
 
 # The character encoding for the email.
