@@ -17,3 +17,8 @@ In the dad_bod_text.py file you will see a number of standard PIP dependencies:
 * requests
 * time
 * datetime
+
+In the same directory as the Python script you will need a file called "weight_chart.xlsx" that has two columns.  The first is the date in the format of YYYY-MM-DD and in the second column your weight lbs or kgs will work.
+
+# Run the script
+A simple "Python3 dad_bod_text.py" will do the trick
